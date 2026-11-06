@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEMO Robot in Isaac Sim — Technical Documentation</title>
+<style>
+  :root{
+    --bg: #eef2f7;
+    --paper: #ffffff;
+    --ink: #1b2430;
+    --muted: #5b6b7c;
+    --accent: #0a6ebd;
+    --accent-soft: #e8f1fa;
+    --accent-2: #0e8f8f;
+    --border: #dde5ee;
+    --code-bg: #101a24;
+    --code-ink: #dfe9f3;
+    --code-key: #7fd1ff;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    padding: 32px 16px 80px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .page{
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 44px 52px 60px;
+    box-shadow: 0 18px 45px rgba(20, 45, 80, .10);
+  }
+
+  /* ---------- Header ---------- */
+  header.doc-head{
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 22px;
+    margin-bottom: 30px;
+  }
+
+  header.doc-head h1{
+    margin: 0 0 12px;
+    font-size: 2.05rem;
+    line-height: 1.2;
+    letter-spacing: -.4px;
+    color: #0d1b2a;
+  }
+
+  .meta{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    font-size: .82rem;
+  }
+
+  .pill{
+    display: inline-block;
+    background: var(--accent-soft);
+    color: #0a4f88;
+    border: 1px solid #cfe2f4;
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+
+  .pill.alt{
+    background: #e7f6f4;
+    color: #0a6b6b;
+    border-color: #c9eae6;
+  }
+
+  /* ---------- TOC ---------- */
+  nav.toc{
+    background: #f7fafd;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent-2);
+    border-radius: 10px;
+    padding: 20px 26px 22px;
+    margin-bottom: 38px;
+  }
+
+  nav.toc h2{
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+
+  nav.toc ol{
+    margin: 0;
+    padding-left: 20px;
+    counter-reset: none;
+  }
+
+  nav.toc > ol > li{ margin: 5px 0; font-weight: 600; }
+
+  nav.toc ol ol{
+    margin: 4px 0 8px;
+    padding-left: 22px;
+    font-weight: 400;
+    font-size: .94rem;
+  }
+
+  nav.toc ol ol li{ margin: 2px 0; }
+
+  nav.toc a{
+    color: #14486f;
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+  }
+
+  nav.toc a:hover{
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ---------- Headings ---------- */
+  section{ margin-top: 46px; }
+
+  h2{
+    font-size: 1.55rem;
+    color: #0d1b2a;
+    margin: 0 0 18px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  h3{
+    font-size: 1.16rem;
+    color: #123a5c;
+    margin: 32px 0 12px;
+  }
+
+  p{ margin: 12px 0; }
+
+  a{ color: var(--accent); }
+
+  /* ---------- Tables ---------- */
+  .table-wrap{
+    overflow-x: auto;
+    margin: 18px 0 22px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  table{
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .94rem;
+    min-width: 480px;
+  }
+
+  thead th{
+    background: #0f3a5c;
+    color: #ffffff;
+    text-align: left;
+    font-weight: 600;
+    padding: 11px 14px;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+
+  tbody td{
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tbody tr:nth-child(even){ background: #f7fafd; }
+  tbody tr:hover{ background: #eef6fd; }
+
+  td code, li code, p code{
+    background: #eef3f8;
+    border: 1px solid #dae4ee;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: .87em;
+    color: #0b4a75;
+    font-family: "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+    white-space: nowrap;
+  }
+
+  /* ---------- Code blocks ---------- */
+  pre{
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: "Cascadia Code", Consolas, "SF Mono", Menlo, monospace;
+    font-size: .875rem;
+    line-height: 1.55;
+    margin: 18px 0 22px;
+    border: 1px solid #1c2c3c;
+    tab-size: 4;
+  }
+
+  pre.diagram{
+    background: #f7fafd;
+    color: #1b3448;
+    border: 1px dashed #c2d5e6;
+    text-align: center;
+  }
+
+  /* ---------- Notes ---------- */
+  .note{
+    background: #fff9e8;
+    border: 1px solid #f2dfae;
+    border-left: 5px solid #e0a92b;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 20px 0;
+    font-size: .95rem;
+  }
+
+  .note strong{ color: #8a5b00; }
+
+  /* ---------- Videos ---------- */
+  .video-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+    margin: 24px 0 10px;
+  }
+
+  figure.video-card{
+    margin: 0;
+    background: #f7fafd;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(20, 45, 80, .08);
+  }
+
+  figure.video-card video{
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000;
+    aspect-ratio: 16 / 9;
+  }
+
+  figure.video-card figcaption{
+    padding: 12px 16px 14px;
+    font-size: .9rem;
+    color: var(--muted);
+  }
+
+  figure.video-card figcaption strong{
+    display: block;
+    color: #123a5c;
+    font-size: .98rem;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- Footer ---------- */
+  footer.doc-foot{
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: .9rem;
+    font-style: italic;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 720px){
+    body{ padding: 16px 8px 48px; }
+    .page{ padding: 26px 20px 40px; border-radius: 10px; }
+    header.doc-head h1{ font-size: 1.5rem; }
+    h2{ font-size: 1.28rem; }
+    h3{ font-size: 1.05rem; }
+    pre{ font-size: .8rem; padding: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="doc-head">
+    <h1>NEMO Robot in Isaac Sim — Technical Documentation</h1>
+    <div class="meta">
+      <span class="pill">Version 1.0</span>
+      <span class="pill">Platform: NVIDIA Isaac Sim 5.1</span>
+      <span class="pill alt">Project: NEMO Swarm Pool Simulation</span>
+      <span class="pill alt">File: nemo_swarm_pool.py</span>
+    </div>
+  </header>
+
+  <!-- ============================== TOC ============================= -->
+  <nav class="toc" id="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#videos">Demo Videos</a></li>
+      <li><a href="#s1">Overview</a></li>
+      <li>
+        <a href="#s2">NEMO Robot Model</a>
+        <ol>
+          <li><a href="#s2-1">Physical Configuration</a></li>
+          <li><a href="#s2-2">Motor Layout</a></li>
+          <li><a href="#s2-3">Forward Kinematics (Forces)</a></li>
+          <li><a href="#s2-4">Inverse Kinematics (Motor Allocation)</a></li>
+          <li><a href="#s2-5">Control Strategy in Simulation</a></li>
+          <li><a href="#s2-6">Physical Parameters Summary</a></li>
+        </ol>
+      </li>
+      <li>
+        <a href="#s3">Water Simulation &amp; Effects</a>
+        <ol>
+          <li><a href="#s3-1">Water Surface Mesh</a></li>
+          <li><a href="#s3-2">Ambient Waves</a></li>
+          <li><a href="#s3-3">Robot-Induced Disturbances</a></li>
+          <li><a href="#s3-4">Ripple Rings</a></li>
+          <li><a href="#s3-5">Visual Materials</a></li>
+        </ol>
+      </li>
+      <li>
+        <a href="#s4">The <code>nemo_swarm_pool.py</code> Program</a>
+        <ol>
+          <li><a href="#s4-1">Architecture</a></li>
+          <li><a href="#s4-2">Execution Flow</a></li>
+          <li><a href="#s4-3">Swarm Shape Sequence</a></li>
+          <li><a href="#s4-4">Key Configuration Parameters</a></li>
+          <li><a href="#s4-5">Usage</a></li>
+        </ol>
+      </li>
+      <li><a href="#s5">Coordinate Conventions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================ VIDEOS ============================ -->
+  <section id="videos">
+    <h2>Demo Videos</h2>
+    <p>
+      Two recorded runs of the <strong>NEMO swarm pool simulation</strong> are included below.
+      They show the five robots performing the shape sequence described in
+      <a href="#s4-3">§4.3</a>, together with the animated water surface, the
+      robot-induced wave disturbances and the expanding ripple rings.
+    </p>
+
+    <div class="video-grid">
+      <figure class="video-card">
+        <video controls preload="metadata" playsinline>
+          <source src="nemo_pool_1.mp4" type="video/mp4">
+          Your browser does not support the HTML5 video tag.
+          <a href="nemo_pool_1.mp4">Download nemo_pool_1.mp4</a>
+        </video>
+        <figcaption>
+          <strong>nemo_pool_1.mp4</strong>
+          Swarm shape transitions — 5 NEMO robots moving between formations in the 8 m × 8 m virtual pool.
+        </figcaption>
+      </figure>
+
+      <figure class="video-card">
+        <video controls preload="metadata" playsinline>
+          <source src="nemo_pool_2.mp4" type="video/mp4">
+          Your browser does not support the HTML5 video tag.
+          <a href="nemo_pool_2.mp4">Download nemo_pool_2.mp4</a>
+        </video>
+        <figcaption>
+          <strong>nemo_pool_2.mp4</strong>
+          Close-up of the water effects — ambient waves, wakes behind moving robots and foam ripple rings.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- =========================== 1 OVERVIEW ========================= -->
+  <section id="s1">
+    <h2>1. Overview</h2>
+
+    <p>
+      The <strong>NEMO</strong> (Networked Exploration &amp; Mapping Omni-robot) is a floating,
+      omnidirectional surface robot designed for swarm exploration and mapping tasks.
+      Each NEMO uses <strong>three equally-spaced thrusters</strong> to achieve three degrees of
+      freedom on the water surface: <strong>two translations (X, Y)</strong> and
+      <strong>one rotation (yaw)</strong>.
+    </p>
+
+    <p>This document describes:</p>
+
+    <ul>
+      <li>How a single NEMO is modelled and controlled inside Isaac Sim (physics fidelity to the real robot);</li>
+      <li>How the virtual pool water is rendered, including wave and wake effects;</li>
+      <li>How <code>nemo_swarm_pool.py</code> orchestrates a 5-robot swarm in a coordinated-shape demo.</li>
+    </ul>
+
+    <p>
+      The simulation reproduces the <strong>exact force model</strong> of the real NEMO
+      (<code>modelo_Surface.py</code> and the project's README), so behaviours observed here —
+      velocity limits, saturation, turning dynamics — are directly comparable to the physical
+      robots used in the pool experiments.
+    </p>
+  </section>
+
+  <!-- ========================= 2 NEMO MODEL ========================= -->
+  <section id="s2">
+    <h2>2. NEMO Robot Model</h2>
+
+    <!-- 2.1 -->
+    <h3 id="s2-1">2.1 Physical Configuration</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Value</th><th>Unit</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mass</td><td>1.46</td><td>kg</td></tr>
+          <tr><td>Moment of inertia about centre (J_O)</td><td>0.00105</td><td>kg·m²</td></tr>
+          <tr><td>Distance from centre to thrusters (R)</td><td>0.15</td><td>m</td></tr>
+          <tr><td>Number of thrusters</td><td>3</td><td>—</td></tr>
+          <tr><td>Max force per thruster</td><td>2.0</td><td>N</td></tr>
+          <tr><td>Max total yaw torque</td><td>0.9</td><td>N·m</td></tr>
+          <tr><td>Max net horizontal force (zero torque)</td><td>3.0</td><td>N</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The robot body is a <strong>circular Xform with three evenly spaced arms</strong>
+      (120° apart). Each arm carries one thruster. In the USD model (<code>nemo_body.usd</code>),
+      the root prim <code>nemo_body</code> is an Xform carrying a <strong>RigidBody API</strong> property.
+    </p>
+
+    <!-- 2.2 -->
+    <h3 id="s2-2">2.2 Motor Layout</h3>
+
+    <p>
+      The three thrusters are positioned at angles <strong>0°, 120°, and 240°</strong> measured
+      from the robot's local +X axis (forward direction):
+    </p>
+
+    <pre class="diagram">                    M1 (0°)
+                      ▲
+                      │
+                      │
+       M3 (240°) ◀────┼────▶ M2 (120°)
+                      │
+                      │
+                      ▼</pre>
+
+    <p>
+      Each thruster's force direction is aligned with its arm, so the body-frame force
+      contribution of motor <em>i</em> has the form:
+    </p>
+
+    <pre>F_i = [ cos(θ_i) ,  sin(θ_i) ] · f_i</pre>
+
+    <p>
+      where <code>θ_i ∈ { 0°, 120°, 240° }</code> and <code>f_i ∈ [−2.0, +2.0] N</code>.
+    </p>
+
+    <!-- 2.3 -->
+    <h3 id="s2-3">2.3 Forward Kinematics (Forces)</h3>
+
+    <p>
+      Summing the contributions of all three motors, the <strong>net body-frame force and yaw
+      torque</strong> are:
+    </p>
+
+    <pre>Fx  = F1  −  0.5·F2  −  0.5·F3
+Fy  = (√3 / 2) · (F3  −  F2)
+τz  = R · (F1 + F2 + F3)</pre>
+
+    <p>
+      These equations are implemented in <code>motors_to_body_forces()</code> and reproduce the
+      dynamics in <code>modelo_Surface.py</code> exactly.
+    </p>
+
+    <p><strong>Physical interpretation:</strong></p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Motion</th><th>Motor command pattern</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pure forward (<code>Fx &gt; 0</code>)</td>
+            <td>M1 forward, M2 and M3 both backward at half power</td>
+          </tr>
+          <tr>
+            <td>Pure sideways (<code>Fy &gt; 0</code>)</td>
+            <td>M2 backwards, M3 forwards, M1 idle</td>
+          </tr>
+          <tr>
+            <td>Pure rotation (<code>τz &gt; 0</code>)</td>
+            <td>All three motors forward equally</td>
+          </tr>
+          <tr>
+            <td>Combined</td>
+            <td>Superposition of the three basis patterns</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.4 -->
+    <h3 id="s2-4">2.4 Inverse Kinematics (Motor Allocation)</h3>
+
+    <p>
+      Given a desired <code>(Fx, Fy, τz)</code> command, the required motor forces are:
+    </p>
+
+    <pre>Fsum = τz / R
+F1   = Fsum/3 + (2/3)·Fx
+F2   = Fsum/3 − (1/3)·Fx − Fy/√3
+F3   = Fsum/3 − (1/3)·Fx + Fy/√3</pre>
+
+    <p>
+      This is the <strong>exact algebraic inverse</strong> of the forward model (verified by
+      substitution). It is implemented in <code>motor_allocation()</code>.
+    </p>
+
+    <!-- 2.5 -->
+    <h3 id="s2-5">2.5 Control Strategy in Simulation</h3>
+
+    <p>
+      Because real motors saturate at ±2.0 N, the simulation <strong>never bypasses this
+      limit</strong>:
+    </p>
+
+    <ol>
+      <li><strong>Compute desired</strong> <code>(Fx, Fy, τz)</code> from the high-level PD controllers (position, yaw, leveling).</li>
+      <li><strong>Allocate</strong> to <code>(F1, F2, F3)</code> using the inverse model.</li>
+      <li><strong>Clip</strong> each motor to <code>±2.0 N</code>.</li>
+      <li><strong>Recompose</strong> the <em>actual</em> <code>(Fx, Fy, τz)</code> from the clipped values using the forward model.</li>
+      <li><strong>Apply</strong> only the achievable force/torque to the rigid body.</li>
+    </ol>
+
+    <p>
+      This guarantees that <strong>the simulated NEMO can never produce more force than the real
+      one</strong> — a critical fidelity property.
+    </p>
+
+    <p>The high-level controllers are:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Controller</th><th>Purpose</th><th>Gains</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Position PD</strong></td>
+            <td>Drive <code>(x, y)</code> toward the target shape slot</td>
+            <td><code>KP_POS = 25</code>, <code>KD_VEL = 10</code></td>
+          </tr>
+          <tr>
+            <td><strong>Yaw PD</strong></td>
+            <td>Hold yaw at 0 rad (forward-facing)</td>
+            <td><code>KP_YAW = 0.25</code>, <code>KD_YAW = 0.12</code></td>
+          </tr>
+          <tr>
+            <td><strong>Buoyancy righting</strong></td>
+            <td>Return roll/pitch to level</td>
+            <td><code>LEVEL_KP = 0.30</code>, <code>LEVEL_KD = 0.05</code></td>
+          </tr>
+          <tr>
+            <td><strong>Z-hold</strong></td>
+            <td>Emulate buoyancy; keep robot at spawn depth</td>
+            <td><code>KP_Z = 40</code>, <code>KD_Z = 10</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>Note:</strong> The yaw torque <code>τ_act</code> from the forward model is expressed
+      in the <strong>body frame</strong>. Before being sent to PhysX (which requires world-frame
+      torques when <code>is_global=True</code>), it is rotated with
+      <code>τ_world = τ_act · R_mat[:, 2]</code> (the body's world-space up-vector).
+    </div>
+
+    <!-- 2.6 -->
+    <h3 id="s2-6">2.6 Physical Parameters Summary</h3>
+
+    <pre>NEMO_MASS       = 1.46        # kg
+NEMO_J_O        = 0.00105     # kg·m²
+NEMO_R          = 0.15        # m
+NEMO_MAX_FORCE  = 2.0         # N per motor
+NEMO_MAX_TORQUE = 3 * 2.0 * 0.15 = 0.9   # N·m
+
+# PhysX damping
+linear_damping  = 2.5         # → terminal speed ≈ 1.2 m/s (matches real NEMO)
+angular_damping = 1.5         # tuned low enough to let buoyancy righting act
+gravity         = disabled    # buoyancy emulated by Z-hold PD</pre>
+
+    <p>
+      The <code>linear_damping = 2.5</code> value is chosen so that the terminal velocity under
+      maximum thrust (<code>F = 3.0 N</code>, <code>m = 1.46 kg</code>) is:
+    </p>
+
+    <pre>v_terminal = F / (m · ζ)  =  3.0 / (1.46 · 2.5)  ≈  0.82 m/s</pre>
+
+    <p>
+      which is close to the real NEMO's observed maximum horizontal speed (~1.0–1.2 m/s).
+      Increasing damping slows the robot; decreasing it produces unrealistic slip.
+    </p>
+  </section>
+
+  <!-- ============================ 3 WATER =========================== -->
+  <section id="s3">
+    <h2>3. Water Simulation &amp; Effects</h2>
+
+    <!-- 3.1 -->
+    <h3 id="s3-1">3.1 Water Surface Mesh</h3>
+
+    <p>
+      The water is represented by a <strong>subdivided quad mesh</strong>
+      (<code>UsdGeom.Mesh</code>) covering the pool area, with:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Grid resolution</td><td>40 × 40 cells → 1681 vertices</td></tr>
+          <tr><td>Pool size</td><td>8 m × 8 m</td></tr>
+          <tr><td>Base height (<code>WATER_Z</code>)</td><td>0.0 m</td></tr>
+          <tr><td>Vertex animation</td><td>Yes — every frame</td></tr>
+          <tr><td>Physics coupling</td><td>None (purely visual)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      A static plane would look flat and unnatural, so the mesh's vertex Z-positions are updated
+      each frame by the <strong>sum of several procedural wave functions</strong>. Because the mesh
+      has only ~1700 vertices, this update is cheap (~0.3 ms per frame).
+    </p>
+
+    <!-- 3.2 -->
+    <h3 id="s3-2">3.2 Ambient Waves</h3>
+
+    <p>The base wave height at any point <code>(x, y)</code> at time <code>t</code> is:</p>
+
+    <pre>z_ambient(x,y,t) = WAVE_AMP · [
+    0.40 · sin(1.2·x − 2.0·t)
+  + 0.40 · sin(1.4·y + 1.8·t)
+  + 0.30 · sin(1.5·(x+y) − 2.5·t)
+  + 0.20 · sin(1.8·(x−y) + 2.2·t)
+  + 0.10 · sin(4.0·x − 5.0·t)·sin(4.0·y + 4.0·t)
+]</pre>
+
+    <ul>
+      <li><strong>Five superimposed travelling sinusoids</strong> with different directions and speeds produce a non-repeating, natural-looking surface.</li>
+      <li><code>WAVE_AMP = 0.008 m</code> (8 mm) → gentle, pool-like ripples.</li>
+      <li>Setting <code>WAVE_AMP = 0.0</code> disables ambient motion entirely.</li>
+    </ul>
+
+    <!-- 3.3 -->
+    <h3 id="s3-3">3.3 Robot-Induced Disturbances</h3>
+
+    <p>
+      Each robot that moves faster than <code>RIPPLE_SPEED_THR = 0.10 m/s</code> adds a
+      <strong>localized bump</strong> to the wave field:
+    </p>
+
+    <pre>z_local(x,y,t) = 0.6 · WAVE_AMP · exp(−d² / 0.15) · sin(10·d − 12·t)</pre>
+
+    <p>
+      where <code>d</code> is the distance from the robot's <code>(x, y)</code> position. The
+      exponential envelope confines the effect to a <strong>~40 cm radius</strong> around the moving
+      robot; the <code>sin(10·d − 12·t)</code> term produces concentric outward-propagating ripples
+      — a <strong>vortex-like wake</strong> trailing the robot.
+    </p>
+
+    <!-- 3.4 -->
+    <h3 id="s3-4">3.4 Ripple Rings</h3>
+
+    <p>
+      In addition to the vertex-displaced waves, a pool of <strong>expanding foam rings</strong>
+      visualizes discrete disturbances. Each ring:
+    </p>
+
+    <ul>
+      <li>Spawns at the robot's position every <strong>0.35 s</strong> while the robot moves (<code>RIPPLE_SPAWN_PERIOD</code>).</li>
+      <li>Starts at radius <code>0.10 m</code> and expands to <code>0.55 m</code> over <code>1.8 s</code> (<code>RIPPLE_LIFETIME</code>).</li>
+      <li>Fades in opacity from <strong>0.90 → 0.00</strong> as it expands.</li>
+      <li>Lives in a pre-allocated pool of <code>N_ROBOTS × RIPPLE_PER_ROBOT = 15</code> slots (no dynamic allocation).</li>
+    </ul>
+
+    <p>
+      The ring geometry is a flat annulus (<code>32</code>-segment ring) whose scale and opacity are
+      updated each frame.
+    </p>
+
+    <!-- 3.5 -->
+    <h3 id="s3-5">3.5 Visual Materials</h3>
+
+    <p>
+      All materials use <strong><code>UsdPreviewSurface</code></strong> with the following
+      parameters:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Surface</th><th>Color</th><th>Opacity</th>
+            <th>Roughness</th><th>IOR</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Water</td><td><code>(0.10, 0.45, 0.85)</code></td><td>0.55</td>
+            <td>0.03</td><td>1.33</td><td>bright blue, highly specular</td>
+          </tr>
+          <tr>
+            <td>Underwater volume</td><td><code>(0.05, 0.32, 0.60)</code></td><td>0.18</td>
+            <td>0.60</td><td>1.33</td><td>depth tint</td>
+          </tr>
+          <tr>
+            <td>Ripple ring</td><td><code>(0.88, 0.96, 1.00)</code></td><td>animated</td>
+            <td>0.20</td><td>1.33</td><td>foam-white, slight emissive</td>
+          </tr>
+          <tr>
+            <td>Pool floor</td><td><code>(0.30, 0.55, 0.70)</code></td><td>1.0</td>
+            <td>0.60</td><td>1.50</td><td>teal</td>
+          </tr>
+          <tr>
+            <td>Pool walls</td><td><code>(0.92, 0.94, 0.96)</code></td><td>1.0</td>
+            <td>0.35</td><td>1.50</td><td>bright white</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The water material is set to <code>doubleSided = True</code> so the surface is visible from
+      below as well as above.
+    </p>
+  </section>
+
+  <!-- ========================== 4 THE PROGRAM ======================= -->
+  <section id="s4">
+    <h2>4. The <code>nemo_swarm_pool.py</code> Program</h2>
+
+    <!-- 4.1 -->
+    <h3 id="s4-1">4.1 Architecture</h3>
+
+    <p>
+      The program is a <strong>standalone Isaac Sim application</strong> — it launches the simulator
+      directly from Python (<code>SimulationApp</code>) rather than as a GUI extension. This makes
+      it ideal for batch experiments, headless runs, and reproducible scientific demos.
+    </p>
+
+    <pre class="diagram">┌───────────────────────────────────────────────────────────────┐
+│                    nemo_swarm_pool.py                         │
+│                                                               │
+│  ┌─────────────┐   ┌──────────────┐   ┌───────────────────┐   │
+│  │ Simulation  │──▶│ World / Stage│──▶│ Pool + 5 NEMO     │   │
+│  │ App start   │   │  (USD)       │   │ + WaterEffects    │   │
+│  └─────────────┘   └──────────────┘   └───────────────────┘   │
+│                                                │              │
+│                                                ▼              │
+│                                    ┌───────────────────┐      │
+│                                    │ Main control loop │      │
+│                                    │  - compute PD     │      │
+│                                    │  - allocate motor │      │
+│                                    │  - clip + recompose│     │
+│                                    │  - apply forces   │      │
+│                                    │  - animate water  │      │
+│                                    └───────────────────┘      │
+└───────────────────────────────────────────────────────────────┘</pre>
+
+    <!-- 4.2 -->
+    <h3 id="s4-2">4.2 Execution Flow</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Step</th><th>What happens</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Boot</strong></td>
+            <td><code>SimulationApp</code> starts Isaac Sim with GUI.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Build scene</strong></td>
+            <td>Pool floor, walls, underwater volume, and water wave mesh are created.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Load robots</strong></td>
+            <td>5 references to <code>nemo_body.usd</code> are added at <code>/World/nemo_1</code> … <code>/World/nemo_5</code>. Each is given a distinct coloured material.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Apply physics</strong></td>
+            <td>Each robot gets <code>PhysxRigidBodyAPI</code> with gravity disabled, damping applied.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Spawn poses</strong></td>
+            <td>Robots are placed in a small ring (radius 0.5 m) around the world origin.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Play loop</strong></td>
+            <td>Every physics step:</td>
+          </tr>
+          <tr><td>│ 6a.</td><td>Read world poses and velocities.</td></tr>
+          <tr><td>│ 6b.</td><td>Compute target shape positions for the current phase.</td></tr>
+          <tr><td>│ 6c.</td><td>For each robot: run position PD → yaw PD → leveling → Z-hold.</td></tr>
+          <tr><td>│ 6d.</td><td>Allocate to motor forces → clip → recompose actual forces.</td></tr>
+          <tr><td>│ 6e.</td><td>Apply forces/torques to PhysX.</td></tr>
+          <tr><td>│ 6f.</td><td>Update water mesh vertices and ripple rings.</td></tr>
+          <tr>
+            <td><strong>7. Shutdown</strong></td>
+            <td>Window close → <code>simulation_app.close()</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4.3 -->
+    <h3 id="s4-3">4.3 Swarm Shape Sequence</h3>
+
+    <p>
+      The swarm cycles through six geometric formations, one every <strong>8 seconds</strong>:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Index</th><th>Shape</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td><code>line</code></td><td>5 robots in a horizontal line</td></tr>
+          <tr><td>1</td><td><code>circle</code></td><td>5 robots on a circle (radius 1.5 m)</td></tr>
+          <tr><td>2</td><td><code>V</code></td><td>V-formation (bird-like)</td></tr>
+          <tr><td>3</td><td><code>cross</code></td><td>Plus-sign arrangement</td></tr>
+          <tr><td>4</td><td><code>square</code></td><td>Four corners + centre</td></tr>
+          <tr><td>5</td><td><code>pentagon</code></td><td>Regular pentagon</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The sequence repeats indefinitely (<code>SHAPE_DURATION = 8.0 s</code> each). Robots use their
+      position PD to reach their assigned slot, so transient dynamics (acceleration, overshoot,
+      convergence) are visible on each transition.
+    </p>
+
+    <!-- 4.4 -->
+    <h3 id="s4-4">4.4 Key Configuration Parameters</h3>
+
+    <p>All values are defined at the top of the file for easy tuning:</p>
+
+    <pre># Scene
+N_ROBOTS            = 5
+ROBOT_USD_PATH      = "C:/isaac5/nemo_body.usd"
+POOL_SIZE           = 8.0
+ROBOT_SPAWN_Z       = 0.02
+
+# NEMO physics (see §2.6)
+NEMO_MASS, NEMO_J_O, NEMO_R, NEMO_MAX_FORCE
+
+# Controller gains
+KP_POS, KD_VEL, MAX_XY_FORCE
+KP_YAW, KD_YAW
+LEVEL_KP, LEVEL_KD
+KP_Z, KD_Z, MAX_Z_FORCE
+
+# Swarm behaviour
+SHAPE_RADIUS        = 1.5
+SHAPE_DURATION      = 8.0
+
+# Water effects
+WAVE_AMP            = 0.008
+WAVE_GRID           = 40
+RIPPLE_PER_ROBOT    = 3
+RIPPLE_LIFETIME     = 1.8
+RIPPLE_SPAWN_PERIOD = 0.35</pre>
+
+    <!-- 4.5 -->
+    <h3 id="s4-5">4.5 Usage</h3>
+
+    <p><strong>Requirements:</strong></p>
+    <ul>
+      <li>Isaac Sim 5.0 or 5.1</li>
+      <li>A valid <code>nemo_body.usd</code> asset (three-thruster robot; must contain a RigidBody root prim named <code>nemo_body</code>)</li>
+    </ul>
+
+    <p><strong>Launch:</strong></p>
+
+    <pre>cd C:\isaac5
+.\python.bat nemo_swarm_pool.py</pre>
+
+    <p><strong>To run headless</strong> (for batch experiments or data generation), change:</p>
+
+    <pre>simulation_app = SimulationApp({"headless": True, "multi_gpu": False})</pre>
+
+    <p>
+      <strong>To exit:</strong> close the Isaac Sim window; the program will shut down cleanly.
+    </p>
+  </section>
+
+  <!-- ======================= 5 COORDINATE CONVENTIONS =============== -->
+  <section id="s5">
+    <h2>5. Coordinate Conventions</h2>
+
+    <p>
+      Throughout this documentation and the code, the following conventions are used:
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Axis</th><th>Definition</th><th>Sign</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>+X</strong></td>
+            <td>Robot forward (aligned with M1 thruster arm)</td>
+            <td>right-hand rule</td>
+          </tr>
+          <tr>
+            <td><strong>+Y</strong></td>
+            <td>Robot left</td>
+            <td>right-hand rule</td>
+          </tr>
+          <tr>
+            <td><strong>+Z</strong></td>
+            <td>Up (world vertical)</td>
+            <td>right-hand rule</td>
+          </tr>
+          <tr>
+            <td><strong>Yaw</strong></td>
+            <td>Rotation about +Z</td>
+            <td>positive = counter-clockwise (viewed from above)</td>
+          </tr>
+          <tr>
+            <td><strong>Roll</strong></td>
+            <td>Rotation about +X</td>
+            <td>positive = right side down</td>
+          </tr>
+          <tr>
+            <td><strong>Pitch</strong></td>
+            <td>Rotation about +Y</td>
+            <td>positive = nose up</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      World frame and body frame coincide at spawn (identity rotation). All controllers operate in
+      the <strong>world frame</strong> for position and in the <strong>body frame</strong> for motor
+      allocation; the conversion between them uses the robot's current yaw.
+    </p>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="doc-foot">
+    End of document.
+  </footer>
+
+</div>
+</body>
+</html>
